@@ -32,6 +32,11 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
             icon: null,
         }] : []),
         {
+            title: 'Browser sessions',
+            href: '/settings/browser-sessions',
+            icon: null,
+        },
+        {
             title: 'Appearance',
             href: '/settings/appearance',
             icon: null,

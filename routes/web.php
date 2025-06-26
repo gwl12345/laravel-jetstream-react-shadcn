@@ -1,10 +1,12 @@
 <?php
 
-use App\Http\Controllers\TwoFactorController;
-use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Application;
+use App\Http\Controllers\TwoFactorController;
+use App\Http\Controllers\BrowserSessionController;
+use App\Http\Controllers\ProfileSettingsController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -37,8 +39,10 @@ Route::middleware([
         return Inertia::render('Profile/Appearance');
     })->name('appearance');
 
+    Route::get('settings/browser-sessions', [ProfileSettingsController::class, 'showBrowserSessions'])->name('browser-sessions');
+
     // Two-factor authentication route - only if feature is enabled
     if (Features::optionEnabled(Features::twoFactorAuthentication(), 'confirm')) {
-        Route::get('settings/two-factor', [TwoFactorController::class, 'show'])->name('two-factor');
+        Route::get('settings/two-factor', [ProfileSettingsController::class, 'showTwoFactor'])->name('two-factor');
     }
 });
