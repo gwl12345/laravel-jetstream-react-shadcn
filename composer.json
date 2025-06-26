@@ -1,8 +1,8 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "gwl12345/laravel-jetstream-react-mantine",
+    "name": "gwl12345/laravel-jetstream-react-shadcn",
     "type": "project",
-    "description": "A starter kit for the Laravel framework using Jetstream, Inertia.js, React (TS), and shadcn.",
+    "description": "A starter kit for the Laravel framework using Jetstream, Inertia.js, React (TS), and shadcn (Laravel Authentication Styling).",
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
