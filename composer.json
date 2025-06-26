@@ -1,8 +1,8 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "gwl12345/laravel-jetstream-react-mantine",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "A starter kit for the Laravel framework using Jetstream, Inertia.js, React (TS), and shadcn.",
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
