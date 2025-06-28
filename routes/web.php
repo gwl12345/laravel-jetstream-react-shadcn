@@ -17,11 +17,6 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('/manual-logout', function () {
-    auth()->logout();
-    return redirect()->route('login');
-});
-
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
