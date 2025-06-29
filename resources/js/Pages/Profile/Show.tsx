@@ -1,7 +1,7 @@
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Transition } from '@headlessui/react';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
+import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
+import { FormEventHandler, useRef, useState } from 'react';
 
 import DeleteUser from '@/components/delete-user';
 import HeadingSmall from '@/components/heading-small';
@@ -22,22 +22,68 @@ const breadcrumbs: BreadcrumbItem[] = [
 type ProfileForm = {
     name: string;
     email: string;
+    photo: File | null;
+    _method: string;
 };
 
 export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
-    const { auth } = usePage<SharedData>().props;
+    const { auth, jetstream } = usePage<SharedData>().props;
+    const photoRef = useRef<HTMLInputElement>(null);
+    const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
-    const { data, setData, put, errors, processing, recentlySuccessful } = useForm<Required<ProfileForm>>({
+    const { data, setData, post, errors, processing, recentlySuccessful } = useForm<Required<ProfileForm>>({
         name: auth.user.name,
         email: auth.user.email,
+        photo: null,
+        _method: 'PUT',
     });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        put(route('user-profile-information.update'), {
+        post(route('user-profile-information.update'), {
             preserveScroll: true,
+            onSuccess: () => clearPhotoFileInput(),
         });
+    };
+
+    const selectNewPhoto = () => {
+        photoRef.current?.click();
+    };
+
+    const updatePhotoPreview = () => {
+        const photo = photoRef.current?.files?.[0];
+
+        if (!photo) {
+            return;
+        }
+
+        setData('photo', photo);
+
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            setPhotoPreview(e.target?.result as string);
+        };
+
+        reader.readAsDataURL(photo);
+    };
+
+    const deletePhoto = () => {
+        router.delete(route('current-user-photo.destroy'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setPhotoPreview(null);
+                clearPhotoFileInput();
+            },
+        });
+    };
+
+    const clearPhotoFileInput = () => {
+        if (photoRef.current?.value) {
+            photoRef.current.value = '';
+            setData('photo', null);
+        }
     };
 
     return (
@@ -49,6 +95,60 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                     <HeadingSmall title="Profile information" description="Update your name and email address" />
 
                     <form onSubmit={submit} className="space-y-6">
+                        {jetstream.managesProfilePhotos && (
+                            <div className="space-y-4">
+                                <Label>Profile Photo</Label>
+
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    ref={photoRef}
+                                    onChange={updatePhotoPreview}
+                                />
+
+                                <div className="flex items-center gap-4">
+                                    <div className="flex-shrink-0">
+                                        {photoPreview ? (
+                                            <div
+                                                className="h-20 w-20 rounded-full bg-cover bg-center bg-no-repeat"
+                                                style={{
+                                                    backgroundImage: `url('${photoPreview}')`,
+                                                }}
+                                            />
+                                        ) : (
+                                            <img
+                                                src={auth.user.profile_photo_url}
+                                                alt={auth.user.name}
+                                                className="h-20 w-20 rounded-full object-cover"
+                                            />
+                                        )}
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={selectNewPhoto}
+                                        >
+                                            Select A New Photo
+                                        </Button>
+
+                                        {auth.user.profile_photo_path && (
+                                          <Button
+                                              type="button"
+                                              variant="outline"
+                                              onClick={deletePhoto}
+                                          >
+                                              Remove Photo
+                                          </Button>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <InputError className="mt-2" message={errors.photo} />
+                            </div>
+                        )}
+
                         <div className="grid gap-2">
                             <Label htmlFor="name">Name</Label>
 
